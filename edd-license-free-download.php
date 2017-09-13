@@ -56,9 +56,7 @@ if( ! class_exists( 'EDD_License' ) ) {
 			'lfd_id',
 			__( 'License Holders Free Download', 'edd_lfd' ),
 			array( __CLASS__, 'meta_box_callback' ),
-			'download',
-			'side',
-			'high'
+			'download'
 		);
 
 	}
@@ -92,23 +90,19 @@ if( ! class_exists( 'EDD_License' ) ) {
 			<input id="lfd_activate" type="checkbox" name="edd_lfd_activate" value="yes" <?php checked( 'yes', $activate ); ?>>
 		</p>
 		<label for="lfd_chosen"><?php _e('Products whose license holders will have access to freely download this product.', 'edd_lfd'); ?></label>
-		<select id="lfd_chosen" name="edd_lfd_products[]" multiple>
-	<?php foreach ($product_list as $product) { ?>
-		<option value="<?php echo $product->ID; ?>"  <?php echo is_array( $values ) && in_array( $product->ID, $values ) ? 'selected="selected"' : ''; ?>><?php echo $product->post_title; ?></option>
-	<?php }
-
-	echo '</select>';
-	?>
-
-		<script type="text/javascript">
-			jQuery("#lfd_chosen").chosen({
-				width: "100%",
-				no_results_text: "No Product Found",
-				placeholder_text_multiple: "Select Products"
-			});
-
-		</script>
-	<?php }
+		<p>
+		<?php
+		echo EDD()->html->product_dropdown( array(
+			'chosen'      => true,
+			'multiple'    => true,
+			'bundles'     => false,
+			'name'        => 'edd_lfd_products[]',
+			'selected'    => $values,
+		));
+		?>
+		</p>
+		<?php
+	}
 
 
 	/**
@@ -117,7 +111,6 @@ if( ! class_exists( 'EDD_License' ) ) {
 	 * @param int $post_id
 	 */
 	public static function save_data( $post_id ) {
-
 		// Check if our nonce is set.
 		if ( ! isset( $_POST['edd_lfd_products_nonce'] ) ) {
 			return;
