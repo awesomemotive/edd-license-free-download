@@ -1,0 +1,102 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Easy Digital Downloads - Free Download for License "
+"Holders\n"
+"POT-Creation-Date: 2015-07-23 08:29+0100\n"
+"PO-Revision-Date: 2015-07-23 08:29+0100\n"
+"Last-Translator: Agbonghama Collins <me@w3guy.com>\n"
+"Language-Team: \n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.7\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: edd-license-free-download.php:49
+msgid "License Holders Free Download"
+msgstr ""
+
+#: edd-license-free-download.php:83
+msgid "Activate Free Download"
+msgstr ""
+
+#: edd-license-free-download.php:86
+msgid ""
+"Products whose license holders will have access to freely download this "
+"product."
+msgstr ""
+
+#: edd-license-free-download.php:161
+msgid "Enter license key"
+msgstr ""
+
+#: edd-license-free-download.php:162
+msgid "Download Free"
+msgstr ""
+
+#: edd-license-free-download.php:199
+msgid "License key is missing"
+msgstr ""
+
+#: edd-license-free-download.php:208
+msgid "Product is not available for free."
+msgstr ""
+
+#: edd-license-free-download.php:225
+msgid "The license key isn't allowed to download this product for free. Sorry."
+msgstr ""
+
+#: edd-license-free-download.php:232
+msgid "License key validation failed. Try again"
+msgstr ""
+
+#: edd-license-free-download.php:508
+msgid "License Free Downloads"
+msgstr ""
+
+#: edd-license-free-download.php:515
+msgid "License Missing"
+msgstr ""
+
+#: edd-license-free-download.php:516
+msgid "Error displayed when no license key is detected."
+msgstr ""
+
+#: edd-license-free-download.php:521
+msgid "Failed License Validation"
+msgstr ""
+
+#: edd-license-free-download.php:522
+msgid "Error displayed when a license key is deemed invalid."
+msgstr ""
+
+#: edd-license-free-download.php:527
+msgid "Product not Free"
+msgstr ""
+
+#: edd-license-free-download.php:528
+msgid "Error displayed when trying to download a product that is not free."
+msgstr ""
+
+#: edd-license-free-download.php:533
+msgid "Access Denied"
+msgstr ""
+
+#: edd-license-free-download.php:534
+msgid "Error displayed when a license key is denied access to a free download."
+msgstr ""
+
+#: edd-license-free-download.php:547
+msgid "EDD License free download"
+msgstr ""
+
+#: edd-license-free-download.php:547
+msgid "requires Easy Digital Download plugin activated to work"
+msgstr ""
