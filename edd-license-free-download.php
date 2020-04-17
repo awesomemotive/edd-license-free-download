@@ -276,28 +276,10 @@ if( ! class_exists( 'EDD_License' ) ) {
 	 *
 	 * @param string $license_key
 	 *
-	 * @return array
+	 * @return int
 	 */
 	public static function get_license_product_ids( $license_key ) {
-
-		global $wpdb;
-
-		// The edd_license post ID of the license key
-		$license_post_id = $wpdb->get_var(
-		$wpdb->prepare(
-		"SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_key' AND meta_value = %s", $license_key )
-		);
-
-		$payment_id = get_post_meta( $license_post_id, '_edd_sl_payment_id', true );
-
-		$get_product_id_for_payment = edd_get_payment_meta_cart_details( $payment_id );
-
-		$products_ids_for_payment = array();
-		foreach ( $get_product_id_for_payment as $key => $products ) {
-			$products_ids_for_payment[] = $products['id'];
-		}
-
-		return $products_ids_for_payment;
+		return edd_software_licensing()->get_download_id_by_license( $license_key );
 	}
 
 
@@ -311,14 +293,12 @@ if( ! class_exists( 'EDD_License' ) ) {
 		// products ids (that was saved in 'chosen' select box) the license will be checked against
 		$free_products = self::get_free_products_ids( $download_id );
 
-		// ids of products the license is for
-		$license_products = self::get_license_product_ids( $license_key );
+		// ids of product the license is for
+		$licensed_product = self::get_license_product_ids( $license_key );
 
 		// store the status of the license products. i.e whether they are among the products available for free or not
-		foreach ( $license_products as $product ) {
-			if ( in_array( $product, $free_products ) ) {
-				return true;
-			}
+		if ( in_array( $licensed_product, $free_products, true ) ) {
+			return true;
 		}
 
 		// return false if the return above doesn't return true
