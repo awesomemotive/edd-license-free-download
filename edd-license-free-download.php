@@ -291,10 +291,10 @@ if( ! class_exists( 'EDD_License' ) ) {
 	public static function comparison( $license_key, $download_id ) {
 
 		// products ids (that was saved in 'chosen' select box) the license will be checked against
-		$free_products = self::get_free_products_ids( $download_id );
+		$free_products = array_map( 'absint', self::get_free_products_ids( $download_id ) );
 
 		// ids of product the license is for
-		$licensed_product = self::get_license_product_ids( $license_key );
+		$licensed_product = absint( self::get_license_product_ids( $license_key ) );
 
 		// store the status of the license products. i.e whether they are among the products available for free or not
 		if ( in_array( $licensed_product, $free_products, true ) ) {
