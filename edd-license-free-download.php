@@ -11,14 +11,7 @@
  * Domain Path: languages
  */
 
-
- // Load the EDD license handler only if not already loaded. Must be placed in the main plugin file
-if( ! class_exists( 'EDD_License' ) ) {
-		include( dirname( __FILE__ ) . '/includes/EDD_License_Handler.php' );
-}
-
-
-   class EDD_lfd {
+class EDD_lfd {
 
 	public static $edd_fdl_errors;
 
@@ -41,11 +34,22 @@ if( ! class_exists( 'EDD_License' ) ) {
 
 		add_shortcode( 'edd_lfd', array( __CLASS__, 'shortcode_form' ) );
 
-
 		add_filter( 'edd_settings_extensions', array( __CLASS__, 'settings_page' ) );
+
+		add_action( 'plugins_loaded', array( __CLASS__, 'licensing' ), 20 );
 
 	}
 
+	/**
+	 * Use the EDD built in license handler.
+	 *
+	 * @since 1.0.1
+	 */
+	public static function licensing() {
+		if ( class_exists( 'EDD_License' ) ) {
+			$license = new EDD_License( __FILE__, 'License Free Download', '1.0.1', 'Sandhills Development, LLC' );
+		}
+	}
 
 	/**
 	 * Add meta-box to WP dashboard
@@ -582,6 +586,3 @@ add_action( 'plugins_loaded', 'edd_lfd_load_class' );
 function edd_lfd_load_class() {
 	EDD_lfd::init();
 }
-
-
-$license = new EDD_License( __FILE__, 'License Free Download', '1.0', 'W3Guy LLC' );
