@@ -74,15 +74,6 @@ if( ! class_exists( 'EDD_License' ) ) {
 
 		$activate = get_post_meta( $post->ID, '_edd_lfd_activate', true );
 		$values   = get_post_meta( $post->ID, '_edd_lfd_products', true );
-
-		$product_list = get_posts(
-			array(
-				'post_type'      => 'download',
-				'posts_per_page' => - 1,
-				'nopaging'       => true
-			)
-		);
-
 		?>
 
 		<p>
