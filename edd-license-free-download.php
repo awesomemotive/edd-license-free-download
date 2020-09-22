@@ -41,9 +41,8 @@ if( ! class_exists( 'EDD_License' ) ) {
 
 		add_shortcode( 'edd_lfd', array( __CLASS__, 'shortcode_form' ) );
 
-
+		add_filter( 'edd_settings_sections_extensions', array( __CLASS__, 'register_subsection' ) );
 		add_filter( 'edd_settings_extensions', array( __CLASS__, 'settings_page' ) );
-
 	}
 
 
@@ -504,44 +503,58 @@ if( ! class_exists( 'EDD_License' ) ) {
 		}
 	}
 
+	/**
+	 * Registers the extension subsection.
+	 *
+	 * @since 1.0.1
+	 * @param array $sections
+	 * @return array
+	 */
+	public static function register_subsection( $sections ) {
+		$sections['edd-license-free-download'] = __( 'License Free Downloads', 'edd_lfd' );
+
+		return $sections;
+	}
+
+	/**
+	 * Registers the extension's settings fields.
+	 *
+	 * @since 1.0.1
+	 * @param array $settings
+	 * @return array
+	 */
 	public static function settings_page( $settings ) {
 
 		$license_settings = array(
-			array(
-				'id'   => 'edd_lfd_header',
-				'name' => '<strong>' . __( 'License Free Downloads', 'edd_lfd' ) . '</strong>',
-				'desc' => '',
-				'type' => 'header',
-				'size' => 'regular'
-			),
-			array(
-				'id'   => 'edd_lfd_license_missing',
-				'name' => __( 'License Missing', 'edd_sl' ),
-				'desc' => __( 'Error displayed when no license key is detected.', 'edd_lfd' ),
-				'type' => 'text'
-			),
-			array(
-				'id'   => 'edd_lfd_license_validation_failed',
-				'name' => __( 'Failed License Validation', 'edd_sl' ),
-				'desc' => __( 'Error displayed when a license key is deemed invalid.', 'edd_lfd' ),
-				'type' => 'text'
-			),
-			array(
-				'id'   => 'edd_lfd_product_not_free',
-				'name' => __( 'Product not Free', 'edd_sl' ),
-				'desc' => __( 'Error displayed when trying to download a product that is not free.', 'edd_lfd' ),
-				'type' => 'text'
-			),
-			array(
-				'id'   => 'edd_lfd_access_denied',
-				'name' => __( 'Access Denied', 'edd_sl' ),
-				'desc' => __( 'Error displayed when a license key is denied access to a free download.', 'edd_lfd' ),
-				'type' => 'text'
+			'edd-license-free-download' => array(
+				array(
+					'id'   => 'edd_lfd_license_missing',
+					'name' => __( 'License Missing', 'edd_lfd' ),
+					'desc' => __( 'Error displayed when no license key is detected.', 'edd_lfd' ),
+					'type' => 'text',
+				),
+				array(
+					'id'   => 'edd_lfd_license_validation_failed',
+					'name' => __( 'Failed License Validation', 'edd_lfd' ),
+					'desc' => __( 'Error displayed when a license key is deemed invalid.', 'edd_lfd' ),
+					'type' => 'text',
+				),
+				array(
+					'id'   => 'edd_lfd_product_not_free',
+					'name' => __( 'Product not Free', 'edd_lfd' ),
+					'desc' => __( 'Error displayed when trying to download a product that is not free.', 'edd_lfd' ),
+					'type' => 'text',
+				),
+				array(
+					'id'   => 'edd_lfd_access_denied',
+					'name' => __( 'Access Denied', 'edd_lfd' ),
+					'desc' => __( 'Error displayed when a license key is denied access to a free download.', 'edd_lfd' ),
+					'type' => 'text',
+				),
 			),
 		);
 
 		return array_merge( $settings, $license_settings );
-
 	}
 
 	/**
