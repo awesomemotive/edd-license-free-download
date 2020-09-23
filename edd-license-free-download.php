@@ -276,10 +276,10 @@ if( ! class_exists( 'EDD_License' ) ) {
 	 *
 	 * @param string $license_key
 	 *
-	 * @return int
+	 * @return array
 	 */
 	public static function get_license_product_ids( $license_key ) {
-		return edd_software_licensing()->get_download_id_by_license( $license_key );
+		return (array) edd_software_licensing()->get_download_id_by_license( $license_key );
 	}
 
 
@@ -294,10 +294,10 @@ if( ! class_exists( 'EDD_License' ) ) {
 		$free_products = array_map( 'absint', self::get_free_products_ids( $download_id ) );
 
 		// ids of product the license is for
-		$licensed_product = absint( self::get_license_product_ids( $license_key ) );
+		$licensed_products = array_map( 'absint', self::get_license_product_ids( $license_key ) );
 
 		// store the status of the license products. i.e whether they are among the products available for free or not
-		if ( in_array( $licensed_product, $free_products, true ) ) {
+		if ( array_intersect( $free_products, $licensed_products ) ) {
 			return true;
 		}
 
