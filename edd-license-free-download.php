@@ -272,7 +272,9 @@ if( ! class_exists( 'EDD_License' ) ) {
 
 
 	/**
-	 * Get the products id associated with a license key
+	 * Get the product id associated with a license key.
+	 * For backwards compatibility, this is returned as an array even though
+	 * the SL function returns an integer.
 	 *
 	 * @param string $license_key
 	 *
