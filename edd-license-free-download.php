@@ -242,7 +242,6 @@ if( ! class_exists( 'EDD_License' ) ) {
 		}
 	}
 
-
 	/**
 	 * Verify the license key hasn't expired
 	 *
@@ -253,23 +252,13 @@ if( ! class_exists( 'EDD_License' ) ) {
 	 * @return bool
 	 */
 	public static function validate_license( $license_key ) {
-		global $wpdb;
-
-		// The edd_license post ID of the license key
-		$license_post_id = $wpdb->get_var(
-		$wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_key' AND meta_value = %s", $license_key )
-		 );
-
-		$obj    = edd_software_licensing();
-		$status = $obj->get_license_status( $license_post_id );
-
-		if ( $status != 'expired' ||  $status != 'revoked') {
+		$license = edd_software_licensing()->get_license( $license_key );
+		if ( ! in_array( $license->status, array( 'expired', 'revoked' ), true ) ) {
 			return true;
-		} else {
-			return false;
 		}
-	}
 
+		return false;
+	}
 
 	/**
 	 * Get the product id associated with a license key.
