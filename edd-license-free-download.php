@@ -243,7 +243,6 @@ if( ! class_exists( 'EDD_License' ) ) {
 		}
 	}
 
-
 	/**
 	 * Verify the license key hasn't expired
 	 *
@@ -254,51 +253,25 @@ if( ! class_exists( 'EDD_License' ) ) {
 	 * @return bool
 	 */
 	public static function validate_license( $license_key ) {
-		global $wpdb;
-
-		// The edd_license post ID of the license key
-		$license_post_id = $wpdb->get_var(
-		$wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_key' AND meta_value = %s", $license_key )
-		 );
-
-		$obj    = edd_software_licensing();
-		$status = $obj->get_license_status( $license_post_id );
-
-		if ( $status != 'expired' ||  $status != 'revoked') {
+		$license = edd_software_licensing()->get_license( $license_key );
+		if ( ! in_array( $license->status, array( 'expired', 'revoked' ), true ) ) {
 			return true;
-		} else {
-			return false;
 		}
+
+		return false;
 	}
 
-
 	/**
-	 * Get the products id associated with a license key
+	 * Get the product id associated with a license key.
+	 * For backwards compatibility, this is returned as an array even though
+	 * the SL function returns an integer.
 	 *
 	 * @param string $license_key
 	 *
 	 * @return array
 	 */
 	public static function get_license_product_ids( $license_key ) {
-
-		global $wpdb;
-
-		// The edd_license post ID of the license key
-		$license_post_id = $wpdb->get_var(
-		$wpdb->prepare(
-		"SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_key' AND meta_value = %s", $license_key )
-		);
-
-		$payment_id = get_post_meta( $license_post_id, '_edd_sl_payment_id', true );
-
-		$get_product_id_for_payment = edd_get_payment_meta_cart_details( $payment_id );
-
-		$products_ids_for_payment = array();
-		foreach ( $get_product_id_for_payment as $key => $products ) {
-			$products_ids_for_payment[] = $products['id'];
-		}
-
-		return $products_ids_for_payment;
+		return (array) edd_software_licensing()->get_download_id_by_license( $license_key );
 	}
 
 
@@ -310,16 +283,14 @@ if( ! class_exists( 'EDD_License' ) ) {
 	public static function comparison( $license_key, $download_id ) {
 
 		// products ids (that was saved in 'chosen' select box) the license will be checked against
-		$free_products = self::get_free_products_ids( $download_id );
+		$free_products = array_map( 'absint', self::get_free_products_ids( $download_id ) );
 
-		// ids of products the license is for
-		$license_products = self::get_license_product_ids( $license_key );
+		// ids of product the license is for
+		$licensed_products = array_map( 'absint', self::get_license_product_ids( $license_key ) );
 
 		// store the status of the license products. i.e whether they are among the products available for free or not
-		foreach ( $license_products as $product ) {
-			if ( in_array( $product, $free_products ) ) {
-				return true;
-			}
+		if ( array_intersect( $free_products, $licensed_products ) ) {
+			return true;
 		}
 
 		// return false if the return above doesn't return true
