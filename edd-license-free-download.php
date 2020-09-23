@@ -135,7 +135,7 @@ if( ! class_exists( 'EDD_License' ) ) {
 		}
 
 		// Sanitize user input.
-		$products = array_map( 'absint', (array) $_POST['edd_lfd_products'] );
+		$products = array_map( 'esc_attr', (array) $_POST['edd_lfd_products'] );
 
 		$activated = esc_attr( $_POST['edd_lfd_activate'] );
 
