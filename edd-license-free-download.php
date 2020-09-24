@@ -34,10 +34,10 @@ class EDD_lfd {
 
 		add_shortcode( 'edd_lfd', array( __CLASS__, 'shortcode_form' ) );
 
-		add_filter( 'edd_settings_extensions', array( __CLASS__, 'settings_page' ) );
-
 		add_action( 'plugins_loaded', array( __CLASS__, 'licensing' ), 20 );
 
+		add_filter( 'edd_settings_sections_extensions', array( __CLASS__, 'register_subsection' ) );
+		add_filter( 'edd_settings_extensions', array( __CLASS__, 'settings_page' ) );
 	}
 
 	/**
@@ -145,13 +145,21 @@ class EDD_lfd {
 		}
 
 		// Sanitize user input.
-		$products = array_map( 'absint', (array) $_POST['edd_lfd_products'] );
+		if ( ! empty( $_POST['edd_lfd_products'] ) ) {
+			$products = array_map( 'absint', (array) $_POST['edd_lfd_products'] );
+			if ( $products ) {
+				update_post_meta( $post_id, '_edd_lfd_products', $products );
+			}
+		} else {
+			delete_post_meta( $post_id, '_edd_lfd_products' );
+		}
 
-		$activated = esc_attr( $_POST['edd_lfd_activate'] );
-
-		// Update the meta field in the database.
-		update_post_meta( $post_id, '_edd_lfd_products', $products );
-		update_post_meta( $post_id, '_edd_lfd_activate', $activated );
+		if ( ! empty( $_POST['edd_lfd_activate'] ) ) {
+			$activated = (bool) $_POST['edd_lfd_activate'];
+			update_post_meta( $post_id, '_edd_lfd_activate', $activated );
+		} else {
+			delete_post_meta( $post_id, '_edd_lfd_activate' );
+		}
 	}
 
 
@@ -246,7 +254,6 @@ class EDD_lfd {
 		}
 	}
 
-
 	/**
 	 * Verify the license key hasn't expired
 	 *
@@ -257,51 +264,30 @@ class EDD_lfd {
 	 * @return bool
 	 */
 	public static function validate_license( $license_key ) {
-		global $wpdb;
-
-		// The edd_license post ID of the license key
-		$license_post_id = $wpdb->get_var(
-		$wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_key' AND meta_value = %s", $license_key )
-		 );
-
-		$obj    = edd_software_licensing();
-		$status = $obj->get_license_status( $license_post_id );
-
-		if ( $status != 'expired' ||  $status != 'revoked') {
-			return true;
-		} else {
+		$license = edd_software_licensing()->get_license( $license_key );
+		if ( ! $license ) {
 			return false;
 		}
+		if ( ! in_array( $license->status, array( 'expired', 'revoked', 'disabled' ), true ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
-
 	/**
-	 * Get the products id associated with a license key
+	 * Get the product id associated with a license key.
+	 * For backwards compatibility, this is returned as an array even though
+	 * the SL function returns an integer.
 	 *
 	 * @param string $license_key
 	 *
 	 * @return array
 	 */
 	public static function get_license_product_ids( $license_key ) {
+		$licensed_products = (array) edd_software_licensing()->get_download_id_by_license( $license_key );
 
-		global $wpdb;
-
-		// The edd_license post ID of the license key
-		$license_post_id = $wpdb->get_var(
-		$wpdb->prepare(
-		"SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_key' AND meta_value = %s", $license_key )
-		);
-
-		$payment_id = get_post_meta( $license_post_id, '_edd_sl_payment_id', true );
-
-		$get_product_id_for_payment = edd_get_payment_meta_cart_details( $payment_id );
-
-		$products_ids_for_payment = array();
-		foreach ( $get_product_id_for_payment as $key => $products ) {
-			$products_ids_for_payment[] = $products['id'];
-		}
-
-		return $products_ids_for_payment;
+		return array_filter( $licensed_products );
 	}
 
 
@@ -313,16 +299,14 @@ class EDD_lfd {
 	public static function comparison( $license_key, $download_id ) {
 
 		// products ids (that was saved in 'chosen' select box) the license will be checked against
-		$free_products = self::get_free_products_ids( $download_id );
+		$free_products = array_map( 'absint', self::get_free_products_ids( $download_id ) );
 
-		// ids of products the license is for
-		$license_products = self::get_license_product_ids( $license_key );
+		// ids of product the license is for
+		$licensed_products = array_map( 'absint', self::get_license_product_ids( $license_key ) );
 
 		// store the status of the license products. i.e whether they are among the products available for free or not
-		foreach ( $license_products as $product ) {
-			if ( in_array( $product, $free_products ) ) {
-				return true;
-			}
+		if ( array_intersect( $free_products, $licensed_products ) ) {
+			return true;
 		}
 
 		// return false if the return above doesn't return true
@@ -338,17 +322,10 @@ class EDD_lfd {
 	 * @return array
 	 */
 	public static function get_free_products_ids( $product_id ) {
-		global $wpdb;
+		$free_products = (array) get_post_meta( $product_id, '_edd_lfd_products', true );
 
-		// return multi-dimensional array of all products set to free download
-		$query = $wpdb->get_col(
-		$wpdb->prepare( "SELECT meta_value FROM $wpdb->postmeta WHERE meta_key = '_edd_lfd_products' AND post_id = %d", $product_id )
-		);
-
-		return unserialize( $query[0] );
-
+		return array_filter( $free_products );
 	}
-
 
 	/**
 	 * Add product to cart and subsequently checkout
@@ -508,44 +485,58 @@ class EDD_lfd {
 		}
 	}
 
+	/**
+	 * Registers the extension subsection.
+	 *
+	 * @since 1.0.1
+	 * @param array $sections
+	 * @return array
+	 */
+	public static function register_subsection( $sections ) {
+		$sections['edd-license-free-download'] = __( 'License Free Downloads', 'edd_lfd' );
+
+		return $sections;
+	}
+
+	/**
+	 * Registers the extension's settings fields.
+	 *
+	 * @since 1.0.1
+	 * @param array $settings
+	 * @return array
+	 */
 	public static function settings_page( $settings ) {
 
 		$license_settings = array(
-			array(
-				'id'   => 'edd_lfd_header',
-				'name' => '<strong>' . __( 'License Free Downloads', 'edd_lfd' ) . '</strong>',
-				'desc' => '',
-				'type' => 'header',
-				'size' => 'regular'
-			),
-			array(
-				'id'   => 'edd_lfd_license_missing',
-				'name' => __( 'License Missing', 'edd_sl' ),
-				'desc' => __( 'Error displayed when no license key is detected.', 'edd_lfd' ),
-				'type' => 'text'
-			),
-			array(
-				'id'   => 'edd_lfd_license_validation_failed',
-				'name' => __( 'Failed License Validation', 'edd_sl' ),
-				'desc' => __( 'Error displayed when a license key is deemed invalid.', 'edd_lfd' ),
-				'type' => 'text'
-			),
-			array(
-				'id'   => 'edd_lfd_product_not_free',
-				'name' => __( 'Product not Free', 'edd_sl' ),
-				'desc' => __( 'Error displayed when trying to download a product that is not free.', 'edd_lfd' ),
-				'type' => 'text'
-			),
-			array(
-				'id'   => 'edd_lfd_access_denied',
-				'name' => __( 'Access Denied', 'edd_sl' ),
-				'desc' => __( 'Error displayed when a license key is denied access to a free download.', 'edd_lfd' ),
-				'type' => 'text'
+			'edd-license-free-download' => array(
+				array(
+					'id'   => 'edd_lfd_license_missing',
+					'name' => __( 'License Missing', 'edd_lfd' ),
+					'desc' => __( 'Error displayed when no license key is detected.', 'edd_lfd' ),
+					'type' => 'text',
+				),
+				array(
+					'id'   => 'edd_lfd_license_validation_failed',
+					'name' => __( 'Failed License Validation', 'edd_lfd' ),
+					'desc' => __( 'Error displayed when a license key is deemed invalid.', 'edd_lfd' ),
+					'type' => 'text',
+				),
+				array(
+					'id'   => 'edd_lfd_product_not_free',
+					'name' => __( 'Product not Free', 'edd_lfd' ),
+					'desc' => __( 'Error displayed when trying to download a product that is not free.', 'edd_lfd' ),
+					'type' => 'text',
+				),
+				array(
+					'id'   => 'edd_lfd_access_denied',
+					'name' => __( 'Access Denied', 'edd_lfd' ),
+					'desc' => __( 'Error displayed when a license key is denied access to a free download.', 'edd_lfd' ),
+					'type' => 'text',
+				),
 			),
 		);
 
 		return array_merge( $settings, $license_settings );
-
 	}
 
 	/**
