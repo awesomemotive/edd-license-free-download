@@ -280,7 +280,9 @@ if( ! class_exists( 'EDD_License' ) ) {
 	 * @return array
 	 */
 	public static function get_license_product_ids( $license_key ) {
-		return (array) edd_software_licensing()->get_download_id_by_license( $license_key );
+		$licensed_products = (array) edd_software_licensing()->get_download_id_by_license( $license_key );
+
+		return array_filter( $licensed_products );
 	}
 
 
@@ -315,7 +317,9 @@ if( ! class_exists( 'EDD_License' ) ) {
 	 * @return array
 	 */
 	public static function get_free_products_ids( $product_id ) {
-		return (array) get_post_meta( $product_id, '_edd_lfd_products', true );
+		$free_products = (array) get_post_meta( $product_id, '_edd_lfd_products', true );
+
+		return array_filter( $free_products );
 	}
 
 	/**
