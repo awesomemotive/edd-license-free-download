@@ -263,7 +263,7 @@ if( ! class_exists( 'EDD_License' ) ) {
 		if ( ! $license ) {
 			return false;
 		}
-		if ( ! in_array( $license->status, array( 'expired', 'revoked' ), true ) ) {
+		if ( ! in_array( $license->status, array( 'expired', 'revoked', 'disabled' ), true ) ) {
 			return true;
 		}
 
