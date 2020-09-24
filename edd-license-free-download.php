@@ -274,29 +274,44 @@ if( ! class_exists( 'EDD_License' ) ) {
 		return (array) edd_software_licensing()->get_download_id_by_license( $license_key );
 	}
 
-
 	/**
 	 * Check if any or all of the license_key products is in the list of product available for free download
 	 *
+	 * @param string $license_key
+	 * @param int    $download_id
 	 * @return bool
 	 */
 	public static function comparison( $license_key, $download_id ) {
 
-		// products ids (that was saved in 'chosen' select box) the license will be checked against
-		$free_products = array_map( 'absint', self::get_free_products_ids( $download_id ) );
+		// Product IDs whose license holders can download this product for free.
+		$free_products = array_map( 'esc_attr', self::get_free_products_ids( $download_id ) );
 
-		// ids of product the license is for
-		$licensed_products = array_map( 'absint', self::get_license_product_ids( $license_key ) );
+		// Product ID for this license key (stored as an array).
+		$licensed_products = array_map( 'esc_attr', self::get_license_product_ids( $license_key ) );
 
-		// store the status of the license products. i.e whether they are among the products available for free or not
+		// If a product is in both arrays, it qualifies for the free download.
 		if ( array_intersect( $free_products, $licensed_products ) ) {
 			return true;
 		}
 
-		// return false if the return above doesn't return true
+		// Check if any products allow free downloads for a specific price ID only.
+		foreach ( $free_products as $free ) {
+			$price_id_pos = strpos( $free, '_' );
+			if ( false === $price_id_pos ) {
+				continue;
+			}
+			list( $download_id, $price_id ) = explode( '_', $free );
+			if ( ! in_array( $download_id, $licensed_products, true ) ) {
+				continue;
+			}
+			$license = edd_software_licensing()->get_license( $license_key );
+			if ( $price_id === $license->price_id ) {
+				return true;
+			}
+		}
+
 		return false;
 	}
-
 
 	/**
 	 * Return the IDs of products saved against the post/product with '$product_id' ID
