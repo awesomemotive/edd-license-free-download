@@ -260,6 +260,9 @@ if( ! class_exists( 'EDD_License' ) ) {
 	 */
 	public static function validate_license( $license_key ) {
 		$license = edd_software_licensing()->get_license( $license_key );
+		if ( ! $license ) {
+			return false;
+		}
 		if ( ! in_array( $license->status, array( 'expired', 'revoked' ), true ) ) {
 			return true;
 		}
