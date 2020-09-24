@@ -321,17 +321,8 @@ if( ! class_exists( 'EDD_License' ) ) {
 	 * @return array
 	 */
 	public static function get_free_products_ids( $product_id ) {
-		global $wpdb;
-
-		// return multi-dimensional array of all products set to free download
-		$query = $wpdb->get_col(
-		$wpdb->prepare( "SELECT meta_value FROM $wpdb->postmeta WHERE meta_key = '_edd_lfd_products' AND post_id = %d", $product_id )
-		);
-
-		return unserialize( $query[0] );
-
+		return (array) get_post_meta( $product_id, '_edd_lfd_products', true );
 	}
-
 
 	/**
 	 * Add product to cart and subsequently checkout
