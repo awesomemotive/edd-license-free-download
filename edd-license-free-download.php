@@ -2,10 +2,10 @@
 
 /**
  * Plugin Name: Easy Digital Downloads - License Free Download
- * Plugin URI: http://w3guy.com/
+ * Plugin URI: https://easydigitaldownloads.com/downloads/license-free-download/
  * Description: Offer free product downloads to users with an active license of a previous product(s).
- * Author: Agbonghama Collins
- * Author URI: http://w3guy.com
+ * Author: Sandhills Development, LLC
+ * Author URI: https://sandhillsdev.com
  * Version: 1.0
  * Text Domain: edd_lfd
  * Domain Path: languages
