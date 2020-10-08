@@ -143,11 +143,16 @@ if( ! class_exists( 'EDD_License' ) ) {
 		}
 
 		// Sanitize user input.
-		if ( ! empty( $_POST['edd_lfd_products'] ) ) {
-			$products = array_map( 'absint', (array) $_POST['edd_lfd_products'] );
-			if ( $products ) {
-				update_post_meta( $post_id, '_edd_lfd_products', $products );
+		$products = array();
+		if ( ! empty( $_POST['edd_lfd_products'] ) && is_array( $_POST['edd_lfd_products'] ) ) {
+			foreach ( $_POST['edd_lfd_products'] as $product ) {
+				if ( ! empty( $product ) ) {
+					$products[] = absint( $product );
+				}
 			}
+		}
+		if ( ! empty( $products ) ) {
+			update_post_meta( $post_id, '_edd_lfd_products', $products );
 		} else {
 			delete_post_meta( $post_id, '_edd_lfd_products' );
 		}
