@@ -91,7 +91,7 @@ if( ! class_exists( 'EDD_License' ) ) {
 			<input id="lfd_activate" type="checkbox" name="edd_lfd_activate" value="1" <?php checked( 1, $activate ); ?>>
 			<label for="lfd_activate"><?php esc_html_e( 'Activate Free Download', 'edd_lfd' ); ?></label>
 		</p>
-		<label for="lfd_chosen"><?php esc_html_e( 'Products whose license holders will have access to freely download this product.', 'edd_lfd' ); ?></label>
+		<label for="lfd_chosen"><?php esc_html_e( 'Select the products whose license holders will be allowed to download this product for free.', 'edd_lfd' ); ?></label>
 		<p>
 		<?php
 		echo EDD()->html->product_dropdown( array(
