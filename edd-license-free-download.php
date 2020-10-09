@@ -72,12 +72,24 @@ if( ! class_exists( 'EDD_License' ) ) {
 		wp_nonce_field( 'edd_lfd_products_nonce', 'edd_lfd_products_nonce' );
 
 		$activate = get_post_meta( $post->ID, '_edd_lfd_activate', true );
-		$values   = get_post_meta( $post->ID, '_edd_lfd_products', true );
+		if ( 'yes' === $activate ) {
+			$activate = true;
+		}
+		$values = get_post_meta( $post->ID, '_edd_lfd_products', true );
+
+		$product_list = get_posts(
+			array(
+				'post_type'      => 'download',
+				'posts_per_page' => - 1,
+				'nopaging'       => true,
+			)
+		);
+
 		?>
 
 		<p>
-			<label for="lfd_activate"><strong><?php _e('Activate Free Download', 'edd_lfd'); ?></strong></label>
-			<input id="lfd_activate" type="checkbox" name="edd_lfd_activate" value="yes" <?php checked( 'yes', $activate ); ?>>
+			<input id="lfd_activate" type="checkbox" name="edd_lfd_activate" value="1" <?php checked( 1, $activate ); ?>>
+			<label for="lfd_activate"><?php esc_html_e( 'Activate Free Download', 'edd_lfd' ); ?></label>
 		</p>
 		<label for="products"><?php esc_html_e( 'Products whose license holders will have access to freely download this product.', 'edd_lfd' ); ?></label>
 		<p>
@@ -96,7 +108,6 @@ if( ! class_exists( 'EDD_License' ) ) {
 		</p>
 		<?php
 	}
-
 
 	/**
 	 * Save meta box data
@@ -134,11 +145,16 @@ if( ! class_exists( 'EDD_License' ) ) {
 		}
 
 		// Sanitize user input.
-		if ( ! empty( $_POST['edd_lfd_products'] ) ) {
-			$products = array_map( 'esc_attr', (array) $_POST['edd_lfd_products'] );
-			if ( $products ) {
-				update_post_meta( $post_id, '_edd_lfd_products', $products );
+		$products = array();
+		if ( ! empty( $_POST['edd_lfd_products'] ) && is_array( $_POST['edd_lfd_products'] ) ) {
+			foreach ( $_POST['edd_lfd_products'] as $product ) {
+				if ( ! empty( $product ) ) {
+					$products[] = esc_attr( $product );
+				}
 			}
+		}
+		if ( ! empty( $products ) ) {
+			update_post_meta( $post_id, '_edd_lfd_products', $products );
 		} else {
 			delete_post_meta( $post_id, '_edd_lfd_products' );
 		}
