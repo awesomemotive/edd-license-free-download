@@ -72,32 +72,37 @@ if( ! class_exists( 'EDD_License' ) ) {
 		wp_nonce_field( 'edd_lfd_products_nonce', 'edd_lfd_products_nonce' );
 
 		$activate = get_post_meta( $post->ID, '_edd_lfd_activate', true );
-		$values   = get_post_meta( $post->ID, '_edd_lfd_products', true );
+		if ( 'yes' === $activate ) {
+			$activate = true;
+		}
+		$values = get_post_meta( $post->ID, '_edd_lfd_products', true );
 
 		$product_list = get_posts(
 			array(
 				'post_type'      => 'download',
 				'posts_per_page' => - 1,
-				'nopaging'       => true
+				'nopaging'       => true,
 			)
 		);
 
 		?>
 
 		<p>
-			<label for="lfd_activate"><strong><?php _e('Activate Free Download', 'edd_lfd'); ?></strong></label>
-			<input id="lfd_activate" type="checkbox" name="edd_lfd_activate" value="yes" <?php checked( 'yes', $activate ); ?>>
+			<input id="lfd_activate" type="checkbox" name="edd_lfd_activate" value="1" <?php checked( 1, $activate ); ?>>
+			<label for="lfd_activate"><?php esc_html_e( 'Activate Free Download', 'edd_lfd' ); ?></label>
 		</p>
-		<label for="lfd_chosen"><?php _e('Products whose license holders will have access to freely download this product.', 'edd_lfd'); ?></label>
+		<label for="lfd_chosen"><?php esc_html_e( 'Select the products whose license holders will be allowed to download this product for free.', 'edd_lfd' ); ?></label>
 		<p>
 		<?php
-		echo EDD()->html->product_dropdown( array(
-			'chosen'      => true,
-			'multiple'    => true,
-			'bundles'     => false,
-			'name'        => 'edd_lfd_products[]',
-			'selected'    => $values,
-		));
+		echo EDD()->html->product_dropdown(
+			array(
+				'chosen'   => true,
+				'multiple' => true,
+				'bundles'  => false,
+				'name'     => 'edd_lfd_products[]',
+				'selected' => empty( $values ) ? false : $values,
+			)
+		);
 		?>
 		</p>
 		<?php
@@ -140,11 +145,16 @@ if( ! class_exists( 'EDD_License' ) ) {
 		}
 
 		// Sanitize user input.
-		if ( ! empty( $_POST['edd_lfd_products'] ) ) {
-			$products = array_map( 'absint', (array) $_POST['edd_lfd_products'] );
-			if ( $products ) {
-				update_post_meta( $post_id, '_edd_lfd_products', $products );
+		$products = array();
+		if ( ! empty( $_POST['edd_lfd_products'] ) && is_array( $_POST['edd_lfd_products'] ) ) {
+			foreach ( $_POST['edd_lfd_products'] as $product ) {
+				if ( ! empty( $product ) ) {
+					$products[] = absint( $product );
+				}
 			}
+		}
+		if ( ! empty( $products ) ) {
+			update_post_meta( $post_id, '_edd_lfd_products', $products );
 		} else {
 			delete_post_meta( $post_id, '_edd_lfd_products' );
 		}
