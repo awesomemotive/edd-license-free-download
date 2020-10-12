@@ -94,13 +94,15 @@ if( ! class_exists( 'EDD_License' ) ) {
 		<label for="lfd_chosen"><?php esc_html_e( 'Select the products whose license holders will be allowed to download this product for free.', 'edd_lfd' ); ?></label>
 		<p>
 		<?php
-		echo EDD()->html->product_dropdown( array(
-			'chosen'      => true,
-			'multiple'    => true,
-			'bundles'     => false,
-			'name'        => 'edd_lfd_products[]',
-			'selected'    => $values,
-		));
+		echo EDD()->html->product_dropdown(
+			array(
+				'chosen'   => true,
+				'multiple' => true,
+				'bundles'  => false,
+				'name'     => 'edd_lfd_products[]',
+				'selected' => empty( $values ) ? false : $values,
+			)
+		);
 		?>
 		</p>
 		<?php
