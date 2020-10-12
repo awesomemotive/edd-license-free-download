@@ -100,7 +100,7 @@ if( ! class_exists( 'EDD_License' ) ) {
 				'multiple'   => true,
 				'bundles'    => false,
 				'name'       => 'edd_lfd_products[]',
-				'selected'   => $values,
+				'selected'   => empty( $values ) ? false : $values,
 				'variations' => true,
 			)
 		);
