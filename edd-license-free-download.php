@@ -47,7 +47,7 @@ class EDD_lfd {
 	 */
 	public static function licensing() {
 		if ( class_exists( 'EDD_License' ) ) {
-			$license = new EDD_License( __FILE__, 'License Free Download', '1.0', 'Sandhills Development, LLC' );
+			$license = new EDD_License( __FILE__, 'License Free Download', '1.0', 'Sandhills Development, LLC', null, null, 599141 );
 
 		}
 	}
