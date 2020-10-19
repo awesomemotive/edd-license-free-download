@@ -2,23 +2,16 @@
 
 /**
  * Plugin Name: Easy Digital Downloads - License Free Download
- * Plugin URI: http://w3guy.com/
+ * Plugin URI: https://easydigitaldownloads.com/downloads/license-free-download/
  * Description: Offer free product downloads to users with an active license of a previous product(s).
- * Author: Agbonghama Collins
- * Author URI: http://w3guy.com
+ * Author: Sandhills Development, LLC
+ * Author URI: https://sandhillsdev.com
  * Version: 1.0
  * Text Domain: edd_lfd
  * Domain Path: languages
  */
 
-
- // Load the EDD license handler only if not already loaded. Must be placed in the main plugin file
-if( ! class_exists( 'EDD_License' ) ) {
-		include( dirname( __FILE__ ) . '/includes/EDD_License_Handler.php' );
-}
-
-
-   class EDD_lfd {
+class EDD_lfd {
 
 	public static $edd_fdl_errors;
 
@@ -41,10 +34,23 @@ if( ! class_exists( 'EDD_License' ) ) {
 
 		add_shortcode( 'edd_lfd', array( __CLASS__, 'shortcode_form' ) );
 
+		add_action( 'plugins_loaded', array( __CLASS__, 'licensing' ), 20 );
+
 		add_filter( 'edd_settings_sections_extensions', array( __CLASS__, 'register_subsection' ) );
 		add_filter( 'edd_settings_extensions', array( __CLASS__, 'settings_page' ) );
 	}
 
+	/**
+	 * Use the EDD built in license handler.
+	 *
+	 * @since 1.0.1
+	 */
+	public static function licensing() {
+		if ( class_exists( 'EDD_License' ) ) {
+			$license = new EDD_License( __FILE__, 'License Free Download', '1.0', 'Sandhills Development, LLC', null, null, 599141 );
+
+		}
+	}
 
 	/**
 	 * Add meta-box to WP dashboard
@@ -597,6 +603,3 @@ add_action( 'plugins_loaded', 'edd_lfd_load_class' );
 function edd_lfd_load_class() {
 	EDD_lfd::init();
 }
-
-
-$license = new EDD_License( __FILE__, 'License Free Download', '1.0', 'W3Guy LLC' );
