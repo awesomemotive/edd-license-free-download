@@ -155,7 +155,7 @@ class EDD_lfd {
 		if ( ! empty( $_POST['edd_lfd_products'] ) && is_array( $_POST['edd_lfd_products'] ) ) {
 			foreach ( $_POST['edd_lfd_products'] as $product ) {
 				if ( ! empty( $product ) ) {
-					$products[] = esc_attr( $product );
+					$products[] = sanitize_text_field( $product );
 				}
 			}
 		}
