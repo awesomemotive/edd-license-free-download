@@ -6,7 +6,7 @@
  * Description: Offer free product downloads to users with an active license of a previous product(s).
  * Author: Sandhills Development, LLC
  * Author URI: https://sandhillsdev.com
- * Version: 1.0
+ * Version: 1.0.1
  * Text Domain: edd_lfd
  * Domain Path: languages
  */
@@ -47,7 +47,7 @@ class EDD_lfd {
 	 */
 	public static function licensing() {
 		if ( class_exists( 'EDD_License' ) ) {
-			$license = new EDD_License( __FILE__, 'License Free Download', '1.0', 'Sandhills Development, LLC', null, null, 599141 );
+			$license = new EDD_License( __FILE__, 'License Free Download', '1.0.1', 'Sandhills Development, LLC', null, null, 599141 );
 
 		}
 	}
